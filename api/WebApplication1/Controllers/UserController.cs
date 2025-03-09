@@ -23,20 +23,39 @@
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound(); // במקרה של null
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message }); // במקרה של בעיות כמו שם משתמש לא נמצא
+            }
+            catch (Exception ex)
+            {
+                // במקרה של שגיאות כלליות
+                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+            }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
+            if (string.IsNullOrEmpty(user.Password))
+            {
+                return BadRequest(new { message = "Password cannot be null or empty" });
+            }
+
             var createdUser = await _userService.CreateUserAsync(user);
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User user)
