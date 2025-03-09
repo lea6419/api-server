@@ -166,6 +166,9 @@
             "projectReferences": {
               "C:\\Users\\user1\\Desktop\\practicom\\server\\api\\Core\\Core.csproj": {
                 "projectPath": "C:\\Users\\user1\\Desktop\\practicom\\server\\api\\Core\\Core.csproj"
+              },
+              "C:\\Users\\user1\\Desktop\\practicom\\server\\api\\Data\\Data.csproj": {
+                "projectPath": "C:\\Users\\user1\\Desktop\\practicom\\server\\api\\Data\\Data.csproj"
               }
             }
           }
