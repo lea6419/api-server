@@ -27,6 +27,7 @@ public class FileController : ControllerBase
             Size = fileDto.Size,
             CreatedAt = DateTime.UtcNow,
             FilePath = fileDto.FilePath,
+            UserId = fileDto.UserId
         };
 
         var result = await _fileService.UpdaloadeFileAsync(file);

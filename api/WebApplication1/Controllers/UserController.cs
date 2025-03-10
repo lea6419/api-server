@@ -1,78 +1,85 @@
-﻿namespace API.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
 {
-    using Microsoft.AspNetCore.Mvc;
+    private readonly IUserService _userService;
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    public UserController(IUserService userService)
     {
-        private readonly IUserService _userService;
+        _userService = userService;
+    }
 
-        public UsersController(IUserService userService)
+    // רישום משתמש חדש
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterUser([FromBody] UserDto userDto)
+    {
+        var user = new User
         {
-            _userService = userService;
-        }
+            Username = userDto.FullName,
+            Email = userDto.Email,
+            Role = userDto.Role,
+            Password = userDto.Password,
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        };
+
+        var result = await _userService.CreateUserAsync(user);
+        return Ok(result);
+    }
+
+    // התחברות משתמש
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+    {
+        var token = await _userService.LoginAsync(loginDto.Email, loginDto.Password);
+        if (token == null)
+            return Unauthorized("Invalid credentials");
+
+        return Ok(new { Token = token });
+    }
+
+    // קבלת פרטי משתמש לפי ID
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetUserById(int userId)
+    {
+        var user = await _userService.GetUserByIdAsync(userId);
+        if (user == null)
+            return NotFound();
+
+        var userDto = new UserDto
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
+            Id = user.UserId,
+            FullName = user.Username,
+            Email = user.Email,
+            Role = user.Role
+        };
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        return Ok(userDto);
+    }
+
+    // עדכון פרטי משתמש
+    [HttpPut("{userId}")]
+    public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDto userDto)
+    {
+        var user = new User
         {
-            try
-            {
-                var user = await _userService.GetUserByIdAsync(id);
-                if (user == null)
-                {
-                    return NotFound(); // במקרה של null
-                }
-                return Ok(user);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message }); // במקרה של בעיות כמו שם משתמש לא נמצא
-            }
-            catch (Exception ex)
-            {
-                // במקרה של שגיאות כלליות
-                return StatusCode(500, new { message = "Internal server error", details = ex.Message });
-            }
-        }
+            UserId = userId,
+            Username = userDto.FullName,
+            Email = userDto.Email,
+            Role = userDto.Role
+        };
 
+        var result = await _userService.UpdateUserAsync(user);
+        return Ok(result);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
-        {
-            if (string.IsNullOrEmpty(user.Password))
-            {
-                return BadRequest(new { message = "Password cannot be null or empty" });
-            }
+    // מחיקת משתמש
+    [HttpDelete("{userId}")]
+    public async Task<IActionResult> DeleteUser(int userId)
+    {
 
-            var createdUser = await _userService.CreateUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
-        }
-
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] User user)
-        {
-            if (id != user.UserId)
-            {
-                return BadRequest();
-            }
-            await _userService.UpdateUserAsync(user);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            await _userService.DeleteUserAsync(id);
-            return NoContent();
-        }
+       return Ok( await _userService.DeleteUserAsync(userId));
+       
     }
 }
