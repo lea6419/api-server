@@ -1,17 +1,25 @@
 ﻿
 using System;
+public enum FileStatus
+{
+    Pending,   // בהמתנה להקלדה
+    InProgress, // בעבודה
+    Completed   // הוקלד והוחזר למשתמש
+}
 
 public class UserFile:IEntity
 {
     public int Id { get; set; }
-    public int UserId { get; set; }  // מפתח זר (המשתמש שהעלה את הקובץ)
+    public int UserId { get; set; }  // מפתח זר (המשתמש
+                                     // שהעלה את הקובץ)
+    public FileStatus Status { get; set; }  // 
     public string FileName { get; set; }  // שם הקובץ
     public string FilePath { get; set; }  // נתיב לקובץ (שמור ב-S3)
     public string FileType { get; set; }  // סוג הקובץ (PDF, DOCX וכו')
     public DateTime Deadline { get; set; }  // דדליין להשלמת הקובץ
     public DateTime CreatedAt { get; set; }  // תאריך יצירה
     public DateTime UpdatedAt { get; set; }  // תאריך עדכון
-
+    public bool IsDeleted { get; set; } = false; // סימון מחיקה רכה
     public int Size { get; set; }
 
     // קשרים

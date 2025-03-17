@@ -3,10 +3,12 @@
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private AuthService _authService;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, AuthService authService)
     {
         _userRepository = userRepository;
+        _authService = authService;
     }
 
     public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -135,4 +137,31 @@ public class UserService : IUserService
         // אם נמצא משתמש, מחזירים את המשתמש (כולל את התפקידים שלו)
         return user;
     }
+    public async Task<User?> GetUserByTokenAsync(string token)
+    {
+        try
+        {
+            var userId = _authService.GetUserIdFromToken(token); // החלף במימוש שלך
+            return await _userRepository.GetByIdAsync(userId);
+        }
+        catch (Exception ex)
+        {
+            // טיפול בשגיאות
+            throw new Exception("Error retrieving user by token.", ex);
+        }
+    }
+    public async Task<IEnumerable<User>> GetUsersByTypeistAsync(int typeistId)
+    {
+        try
+        {
+            // נניח ש-User כולל שדה TypeistId שמקשר
+            return await _userRepository.GetAllAsync(u => u.TypeistId == typeistId);
+        }
+        catch (Exception ex)
+        {
+            // טיפול בשגיאות
+            throw new Exception($"Error retrieving users for typeist {typeistId}.", ex);
+        }
+    }
 }
+

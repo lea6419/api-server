@@ -1,0 +1,41 @@
+# קבצי מערכת
+bin/
+obj/
+.vscode/
+.idea/
+*.user
+*.suo
+*.plist
+
+# קבצי הגדרות רגישים
+appsettings.json
+appsettings.*.json
+secrets.json
+*.config
+*.env
+
+# חבילות ותלויות
+node_modules/
+packages/
+*.nupkg
+*.snupkg
+
+# Build
+*.dll
+*.exe
+*.pdb
+*.log
+*.cache
+*.db
+
+# קבצי Git
+*.orig
+*.rej
+
+# קבצים של VS ו-Rider
+*.csproj.user
+*.sln.ide
+*.vs/
+*.suo
+*.userprefs
+.idea/
