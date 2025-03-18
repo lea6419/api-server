@@ -15,5 +15,5 @@ RUN dotnet publish -c Release -o out
 # Use the ASP.NET runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/NobApplicationi/out/ .
+COPY --from=build /app/WebApplication1/out/ .
 ENTRYPOINT ["dotnet", "WebApplication1.dll"]
