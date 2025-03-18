@@ -1,19 +1,23 @@
-# Use the official .NET SDK image to build the app
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Use the official .NET SDK image as a parent image.
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
+EXPOSE 80
 
-# Copy the project files and restore dependencies
-COPY *.sln .
-COPY WebApplication1/*.csproj ./WebApplication1/
-RUN dotnet restore WebApplication1/WebApplication1.csproj
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["WebApplication1.sln", "."]
+COPY ["WebApplication1/WebApplication1.csproj", "WebApplication1/"]
+COPY ["Core/Data/Core.Data.csproj", "Core/Data/"]
+COPY ["Core/Service/Core.Service.csproj", "Core/Service/"]
+RUN dotnet restore "WebApplication1/WebApplication1.csproj"
+COPY . .
+WORKDIR "/src/WebApplication1"
+RUN dotnet build "WebApplication1.csproj" -c Release -o /app/build
 
-# Copy the rest of the files and build the application
-COPY WebApplication1/ . ./WebApplication1/
-WORKDIR /app/WebApplication1
-RUN dotnet publish -c Release -o out
+FROM build AS publish
+RUN dotnet publish "WebApplication1.csproj" -c Release -o /app/publish
 
-# Use the ASP.NET runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM base AS final
 WORKDIR /app
-COPY --from=build /app/WebApplication1/out/ .
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WebApplication1.dll"]
