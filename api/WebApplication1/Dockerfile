@@ -8,7 +8,7 @@ COPY WebApplication1/*.csproj ./WebApplication1/
 RUN dotnet restore WebApplication1/WebApplication1.csproj
 
 # Copy the rest of the files and build the application
-COPY WebApplication1/ . /WebApplication1/
+COPY WebApplication1/ . ./WebApplication1/
 WORKDIR /app/WebApplication1
 RUN dotnet publish -c Release -o out
 
